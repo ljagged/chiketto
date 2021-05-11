@@ -22,6 +22,7 @@ pytest-cov = "^2.11.1"
 pytest-mock = "^3.6.1"
 ipython = "^7.23.1"
 mypy = "^0.812"
+codecov = "^2.1.11"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
