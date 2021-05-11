@@ -7,7 +7,7 @@ JIRA_ISSUE_URL: str = "https://{host}.atlassian.net/rest/api/2/issue/{key}"
 
 
 class Client:
-    def __init__(self, host: str, user: str, token: str):
+    def __init__(self, host: str, user: str, token: str) -> None:
         self.user = user
         self.token = token
         self.host = host
