@@ -1,0 +1,8 @@
+[flake8]
+select = C,E,F,W,BLK,I,B,B9,S
+max-complexity = 10
+max-line-length = 80
+ignore = E203,E501,W503
+application-import-names = chiketto,tests
+import-order-style = google
+per-file-ignores = tests/*:S101
