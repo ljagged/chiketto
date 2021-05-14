@@ -122,5 +122,7 @@ def typeguard(session: Session) -> None:
     """Runtime type-checking with typeguard."""
     args = session.posargs or ["-m", "not e2e"]
     session.run("poetry", "install", "--no-dev", external=True)
-    install_with_constraints(session, "pytest", "pytest-mock", "typeguard")
+    install_with_constraints(
+        session, "pytest", "pytest-mock", "typeguard", "pytest-bdd"
+    )
     session.run("pytest", f"--typeguard-packages={package}", *args)
