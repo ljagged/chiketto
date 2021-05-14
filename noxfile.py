@@ -8,7 +8,7 @@ from nox.sessions import Session
 
 package = "chiketto"
 nox.options.sessions = "lint", "safety", "tests", "mypy", "pytype"
-locations = "src", "tests", "noxfile.py"
+locations = "src", "tests", "noxfile.py", "docs/conf.py"
 
 
 def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
@@ -126,3 +126,11 @@ def typeguard(session: Session) -> None:
         session, "pytest", "pytest-mock", "typeguard", "pytest-bdd"
     )
     session.run("pytest", f"--typeguard-packages={package}", *args)
+
+
+@nox.session(python="3.9")
+def docs(session: Session) -> None:
+    """Build the documentation."""
+    session.run("poetry", "install", "--no-dev", external=True)
+    install_with_constraints(session, "sphinx", "sphinx-autodoc-typehints")
+    session.run("sphinx-build", "docs", "docs/_build")
