@@ -1,0 +1,1 @@
+"""Chiketto tests."""

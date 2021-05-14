@@ -1,9 +1,10 @@
 [flake8]
-select = C,E,F,W,BLK,I,B,B9,S,ANN
+select = C,E,F,W,BLK,I,B,B9,S,ANN,D,DAR
 max-complexity = 10
-max-line-length = 80
+max-line-length = 88
 ignore = E203,E501,W503,ANN101
 application-import-names = chiketto,tests
 import-order-style = google
 per-file-ignores =
     tests/*:S101
+docstring-convention = google

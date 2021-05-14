@@ -46,7 +46,7 @@ def tests(session: Session) -> None:
     args = session.posargs or ["--cov", "-m", "not e2e"]
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(
-        session, "coverage[toml]", "pytest", "pytest-cov", "pytest-mock"
+        session, "coverage[toml]", "pytest", "pytest-cov", "pytest-mock", "pytest-bdd"
     )
     session.run("pytest", *args)
 
@@ -61,6 +61,7 @@ def coverage(session: Session) -> None:
 
 @nox.session(python=["3.9", "3.8", "3.7"])
 def lint(session: Session) -> None:
+    """Lint using flake8."""
     args = session.posargs or locations
     session.install(
         "flake8",
@@ -69,12 +70,15 @@ def lint(session: Session) -> None:
         "flake8-bugbear",
         "flake8-bandit",
         "flake8-annotations",
+        "flake8-docstrings",
+        "darglint",
     )
     session.run("flake8", *args)
 
 
 @nox.session(python="3.8")
 def black(session: Session) -> None:
+    """Run black code formatter."""
     args = session.posargs or locations
     session.install("black")
     session.run("black", *args)
@@ -82,6 +86,7 @@ def black(session: Session) -> None:
 
 @nox.session(python="3.8")
 def safety(session: Session) -> None:
+    """Scan dependencies for insecure packages."""
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
             "poetry",
@@ -98,6 +103,7 @@ def safety(session: Session) -> None:
 
 @nox.session(python=["3.9", "3.8", "3.7"])
 def mypy(session: Session) -> None:
+    """Type-check using mypy."""
     args = session.posargs or locations
     install_with_constraints(session, "mypy")
     session.run("mypy", *args)
@@ -113,6 +119,7 @@ def pytype(session: Session) -> None:
 
 @nox.session(python=["3.9", "3.8", "3.7"])
 def typeguard(session: Session) -> None:
+    """Runtime type-checking with typeguard."""
     args = session.posargs or ["-m", "not e2e"]
     session.run("poetry", "install", "--no-dev", external=True)
     install_with_constraints(session, "pytest", "pytest-mock", "typeguard")
