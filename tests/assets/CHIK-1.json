@@ -1,0 +1,46 @@
+{
+    "key": "CHIK-1",
+    "changelog": {
+        "histories": [
+            {
+                "author": {
+                    "emailAddress": "ljagged@gmail.com",
+                    "displayName": "Alex Garrett"
+                },
+                "created": "2021-05-17T11:09:40.776-0500",
+                "items": [
+                    {
+                        "field": "status",
+                        "toString": "Done"
+                    }
+                ]
+            }
+        ]
+    },
+    "fields": {
+        "resolution": null,
+        "resolutiondate": null,
+        "created": "2021-05-10T13:28:02.417-0500",
+        "priority": {
+            "name": "Standard"
+        },
+        "assignee": {
+            "emailAddress": "ljagged@gmail.com",
+            "displayName": "Alex Garrett"
+        },
+        "updated": "2021-05-17T11:11:43.261-0500",
+        "status": {
+            "name": "Done"
+        },
+        "summary": "test issue",
+        "creator": {
+            "emailAddress": "ljagged@gmail.com",
+            "displayName": "Alex Garrett"
+        },
+        "reporter": {
+            "emailAddress": "ljagged@gmail.com",
+            "displayName": "Alex Garrett"
+        },
+        "duedate": null
+    }
+}
