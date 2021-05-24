@@ -1,10 +1,14 @@
 """The interface to Jira."""
-from dataclasses import dataclass
-from typing import Any
+import datetime
+from typing import Any, List
 
 import requests
 
-JIRA_ISSUE_URL: str = "https://{host}.atlassian.net/rest/api/2/issue/{key}"
+from .parser import parse_issue, WorkItem
+
+JIRA_ISSUE_URL: str = (
+    "https://{host}.atlassian.net/rest/api/2/issue/{key}?fields=*all&expand=changelog"
+)
 
 
 class Client:
@@ -32,7 +36,7 @@ class Client:
         self.token = token
         self.host = host
 
-    def get_by_key(self, key: str) -> Any:
+    def get_by_key_raw(self, key: str) -> Any:
         """Retrieves the issue by Jira key.
 
         Args:
@@ -53,13 +57,16 @@ class Client:
             response.raise_for_status()
             return response.json()
 
+    def get_by_key(self, key: str) -> WorkItem:
+        return parse_issue(self.get_by_key_raw(key))
 
-@dataclass(frozen=True)
-class WorkItem:
-    """The dataclass that represents the Jira issue.
-
-    Attributes:
-        key: the key used to identify the issue.
-    """
-
-    key: str
+    def find_work_items(
+        self,
+        project: str,
+        start_on: datetime.date,
+        end_on: datetime.date,
+        username: str,
+        api_token: str,
+        use_modified: bool = False,
+    ) -> List[WorkItem]:
+        pass
