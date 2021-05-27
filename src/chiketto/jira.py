@@ -36,7 +36,7 @@ class Client:
         self.token = token
         self.host = host
 
-    def get_by_key_raw(self, key: str) -> Any:
+    def _get_by_key_raw(self, key: str) -> Any:
         """Retrieves the issue by Jira key.
 
         Args:
@@ -49,24 +49,22 @@ class Client:
             HTTPError: for any non 2xx response
         """
         headers = {"Content-Type": "application/json"}
-        with requests.get(
+        response = requests.get(
             JIRA_ISSUE_URL.format(host=self.host, key=key),
             auth=(self.user, self.token),
             headers=headers,
-        ) as response:
-            response.raise_for_status()
-            return response.json()
+        )
+        response.raise_for_status()
+        return response.json()
 
     def get_by_key(self, key: str) -> WorkItem:
-        return parse_issue(self.get_by_key_raw(key))
+        return parse_issue(self._get_by_key_raw(key))
 
     def find_work_items(
         self,
         project: str,
         start_on: datetime.date,
         end_on: datetime.date,
-        username: str,
-        api_token: str,
         use_modified: bool = False,
     ) -> List[WorkItem]:
-        pass
+        return []

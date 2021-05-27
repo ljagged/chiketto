@@ -45,6 +45,8 @@ pytest-bdd = "^4.0.2"
 isort = "^5.8.0"
 sphinx-autodoc-typehints = "^1.12.0"
 ipdb = "^0.13.7"
+PyYAML = "^5.4.1"
+simpleeval = "^0.9.10"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -62,7 +64,7 @@ source = ["chiketto"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 100
+fail_under = 95
 
 [tool.black]
 exclude = '''

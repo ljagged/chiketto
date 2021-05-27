@@ -32,5 +32,5 @@ Feature: CLI
     Scenario: From-date is required
         Given the cli is runnable
         When the cli is invoked with no from date
-        Then the application has an error message with: Missing option '--from-date'
+        Then the application has an error message with: Missing option '--start-date'
         And the application ends with an exit code of 2

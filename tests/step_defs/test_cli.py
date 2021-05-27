@@ -113,7 +113,7 @@ def invoke_with_no_projects(ctx: Context, runner: CliRunner) -> None:
         runner: the CliRunner
 
     """
-    ctx["result"] = runner.invoke(cli.main, "--from-date=2021-01-01")
+    ctx["result"] = runner.invoke(cli.main, "--start-date=2021-01-01")
 
 
 @when("the cli is invoked with no from date")

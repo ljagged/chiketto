@@ -986,6 +986,14 @@ packaging = "*"
 requests = "*"
 
 [[package]]
+name = "simpleeval"
+version = "0.9.10"
+description = "A simple, safe single expression evaluator library."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1256,7 +1264,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "e42a4db81742485bcf2d4a42219b3f9e7fcc40aee74c75f484cc02aa2eb161ba"
+content-hash = "c8369ff629474aff68784295886f5c4ae71f0a553dc02410bb264b709bfd2196"
 
 [metadata.files]
 alabaster = [
@@ -1792,6 +1800,9 @@ requests = [
 safety = [
     {file = "safety-1.10.3-py2.py3-none-any.whl", hash = "sha256:5f802ad5df5614f9622d8d71fedec2757099705c2356f862847c58c6dfe13e84"},
     {file = "safety-1.10.3.tar.gz", hash = "sha256:30e394d02a20ac49b7f65292d19d38fa927a8f9582cdfd3ad1adbbc66c641ad5"},
+]
+simpleeval = [
+    {file = "simpleeval-0.9.10.tar.gz", hash = "sha256:692055488c2864637f6c2edb5fa48175978a2a07318009e7cf03c9790ca17bea"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

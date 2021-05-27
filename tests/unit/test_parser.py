@@ -105,6 +105,13 @@ def issue() -> Dict[str, Any]:
         return json.load(f)
 
 
+@pytest.fixture
+def done_issue() -> Dict[str, Any]:
+    fixture = FIXTURE_DIR / "CHIK-2.json"
+    with open(fixture, "r") as f:
+        return json.load(f)
+
+
 def test_parse_issue_top_level_non_derived(issue: Dict[str, Any]) -> None:
     actual = p.parse_issue(issue)
     fields = issue["fields"]
@@ -122,3 +129,19 @@ def test_parse_issue_top_level_non_derived(issue: Dict[str, Any]) -> None:
     )
     assert actual.created_on == parse_date(fields["created"])
     assert actual.last_modified == parse_date(fields["updated"])
+
+
+def test_parse_issue_with_commitment_and_delivery(done_issue: Dict[str, Any]) -> None:
+    actual = p.parse_issue(done_issue)
+    assert actual.lead_time == 4
+    assert actual.commitment_point == p.State(name="up next", category="committed")
+    assert actual.is_done
+    assert actual.committed_on == parse_date(
+        done_issue["changelog"]["histories"][1]["created"]
+    )
+    assert actual.delivered_on == parse_date(
+        done_issue["changelog"]["histories"][2]["created"]
+    )
+    assert actual.accepted_on == parse_date(
+        done_issue["changelog"]["histories"][0]["created"]
+    )

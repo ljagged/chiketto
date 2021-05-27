@@ -1,9 +1,8 @@
 """Parses Jira issues and enriches the result with derived Kanban attributes."""
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 import datetime
 from functools import partial
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, TypeVar
 
 from dateutil.parser import parse as parse_date
 
@@ -52,7 +51,7 @@ class State:
     """
 
     name: str
-    category: Literal["optional", "committed", "delivered"]
+    category: str
 
 
 @dataclass(frozen=True)
@@ -100,29 +99,36 @@ class WorkItem:
     key: str
     summary: str
     requested_by: User
-    assigned_to: User
-    contributors: List[str]
+    assigned_to: Optional[User]
+    contributors: Optional[List[str]]
     class_of_service: str
     events: List[Event]
     current_state: State
     created_on: datetime.datetime
     last_modified: datetime.datetime
     # Derived fields below
-    is_done: bool = field(init=False)
-    lead_time: int = None
-    commitment_point: str = None
-    accepted_on: datetime.datetime = None
-    committed_on: datetime.datetime = None
-    delivered_on: datetime.datetime = None
+    is_done: Optional[bool] = field(init=False)
+    lead_time: Optional[int] = None
+    commitment_point: Optional[str] = None
+    accepted_on: Optional[datetime.datetime] = None
+    committed_on: Optional[datetime.datetime] = None
+    delivered_on: Optional[datetime.datetime] = None
 
     def __post_init__(self) -> None:
         """Adds values for the derived fields."""
         self._thawed_setattr("is_done", self.current_state.name == "done")
         commitment = _determine_commitment(self.events)
+        acceptance = _find_first(partial(is_state, state="accepted"), self.events)
+        if acceptance:
+            self._thawed_setattr("accepted_on", acceptance.changed_on)
         if commitment:
             self._thawed_setattr("commitment_point", commitment[0])
             self._thawed_setattr("committed_on", commitment[1])
         if self.is_done:
+            deliver_event = _unbox(
+                _find_first(partial(is_state, state="done"), self.events)
+            )
+            self._thawed_setattr("delivered_on", deliver_event.changed_on)
             self._thawed_setattr("lead_time", _calculate_lead_time(self.events))
 
     def _thawed_setattr(self, name: str, value: Any) -> None:
@@ -184,7 +190,13 @@ def _calculate_lead_time(events: Sequence[Event]) -> int:
     """Calculates the lead time as the number of days between commitment and delivery."""
     start = _find_first(partial(is_state, state="up next"), events)
     end = _find_first(partial(is_state, state="done"), events)
-    return _calculate_interval(end, start)
+    if start is None or end is None:
+        raise ValueError(
+            f"start and end are needed for lead time calculation: {start}, {end}"
+        )
+    start_actual: Event = start  # needed for mypy
+    end_actual: Event = end
+    return _calculate_interval(end_actual, start_actual)
 
 
 def _find_first(pred: UnaryPredicate, lst: Sequence[T]) -> Optional[T]:
@@ -218,7 +230,7 @@ def parse_issue(issue: Dict[str, Any]) -> WorkItem:
     key: str = issue["key"]
     fields: Dict[str, Any] = issue["fields"]
     summary: str = fields["summary"]
-    requested_by = _extract_user(fields["creator"])
+    requested_by = _unbox(_extract_user(fields["creator"]))
     assigned_to = _extract_user(fields["assignee"])
     class_of_service = fields["priority"]["name"]
     current_state = _extract_state(fields["status"])
@@ -251,11 +263,36 @@ def parse_issue(issue: Dict[str, Any]) -> WorkItem:
     )
 
 
-def _extract_user(user: Dict[str, str]) -> str:
+def _extract_user(user: Optional[Dict[str, str]]) -> Optional[User]:
     """Extracts the user data from the Jira issue."""
     if user is None:
         return None
     return User(name=user["displayName"], email=user["emailAddress"])
+
+
+def _unbox(val: Optional[T]) -> T:
+    """Safely converts an ``Optional[T]`` into a ``T``.
+
+    This allows for type-safe conversions where there may be missing
+    data. It should be used where raising an exception is the
+    right thing to do if the value is missing.
+
+    (The "box" is metaphorical, since the ``Optional`` is really
+    a ``Union`` type of ``None`` and ``T``. This function just
+    narrows the type to ``T``.)
+
+    Args:
+        val: an ``Optional`` of some type ``T``
+
+    Returns:
+        the "unboxed" val
+
+    Raises:
+        ValueError if ``val`` is ``None``.
+    """
+    if val is None:
+        raise ValueError("Nothing to unbox")
+    return val
 
 
 def _extract_state(status: Dict[str, Any]) -> State:
@@ -270,7 +307,7 @@ def _extract_state(status: Dict[str, Any]) -> State:
 def _extract_workflow_event(event: Dict[str, Any]) -> Event:
     """Extracts an event from the issue."""
     workflow_state = _extract_workflow_state(event)
-    agent = _extract_user(event["author"])
+    agent = _unbox(_extract_user(event["author"]))
     changed_on = parse_date(event["created"])
     return Event(
         state=State(name=workflow_state, category=_resolve_category(workflow_state)),
